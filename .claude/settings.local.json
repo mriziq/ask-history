@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(file /Users/amer/Downloads/ask_your_past_icons/*)",
+      "Bash(identify /Users/amer/Downloads/ask_your_past_icons/ask_past_icon-removebg-preview.png)",
+      "Bash(sips -g all /Users/amer/Downloads/ask_your_past_icons/ask_past_icon-removebg-preview.png)",
+      "Bash(convert --version)",
+      "mcp__linear-server__list_teams",
+      "mcp__linear-server__save_project",
+      "mcp__linear-server__save_issue",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

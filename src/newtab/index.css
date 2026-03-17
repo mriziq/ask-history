@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Dark mode (default) ── */
+:root {
+  --ink:       #0E0E12;
+  --ink-1:     #181820;
+  --ink-2:     #232330;
+  --ink-3:     #333348;
+  --amber:     #D4974E;
+  --amber-b:   #EDB46A;
+  --amber-dim: #6B4A20;
+  --cream:     #F0EAE0;
+  --cream-2:   #C4BCAF;
+  --muted:     #7A7890;
+  --dim:       #52505E;
+}
+
+/* ── Light mode ── */
+:root[data-theme="light"] {
+  --ink:       #F4EFE6;
+  --ink-1:     #EAE3D8;
+  --ink-2:     #D8D0C4;
+  --ink-3:     #BEB5A8;
+  --amber:     #9A6520;
+  --amber-b:   #B87C2A;
+  --amber-dim: #D4A870;
+  --cream:     #1C1814;
+  --cream-2:   #4A4440;
+  --muted:     #7A7060;
+  --dim:       #A09080;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'JetBrains Mono', 'Menlo', monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ink-3); border-radius: 2px; }
+::selection { background: rgba(180,120,42,0.25); color: var(--cream); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
