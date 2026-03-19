@@ -47,6 +47,6 @@ WHAT YOU CAN ASK
 |-------|-------|
 | Category | Productivity |
 | Language | English |
-| Privacy Policy URL | *(host PRIVACY.html and add URL here)* |
+| Privacy Policy URL | https://mriziq.github.io/ask-history/PRIVACY.html |
 | Homepage URL | https://github.com/mriziq/ask-your-past |
 | Version | 1.0.0 |
