@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Ask Your Past</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #f9f9f7;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 3rem 3.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 24px rgba(0,0,0,0.04);
+    }
+
+    .badge {
+      display: inline-block;
+      background: #f0f0ec;
+      color: #555;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.3em 0.75em;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #111;
+      margin-bottom: 0.4rem;
+    }
+
+    .meta {
+      font-size: 0.875rem;
+      color: #888;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111;
+      margin-top: 2.25rem;
+      margin-bottom: 0.6rem;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #333;
+      margin-top: 1.25rem;
+      margin-bottom: 0.4rem;
+    }
+
+    p {
+      margin-bottom: 0.75rem;
+      color: #333;
+    }
+
+    ul {
+      padding-left: 1.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    li {
+      margin-bottom: 0.35rem;
+      color: #333;
+    }
+
+    .highlight-box {
+      background: #f5f5f0;
+      border-left: 3px solid #111;
+      border-radius: 0 6px 6px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+      color: #222;
+    }
+
+    a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .contact {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #eee;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .contact a {
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 2rem 1.5rem;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">Chrome Extension</div>
+    <h1>Privacy Policy</h1>
+    <p class="meta">Ask Your Past &nbsp;·&nbsp; Last updated: March 17, 2026</p>
+
+    <div class="highlight-box">
+      <strong>The short version:</strong> Everything stays on your device. The developer collects no data — no analytics, no telemetry, no backend.
+    </div>
+
+    <h2>Overview</h2>
+    <p>Ask Your Past is a Chrome extension that lets you search and chat with your own browsing history. It is built with privacy as a first principle. No data is ever sent to the developer, and no backend server exists.</p>
+
+    <h2>What Data the Developer Collects</h2>
+    <p><strong>None.</strong> There is no analytics, no telemetry, no crash reporting, and no server operated by this extension.</p>
+
+    <h2>What Data the Extension Uses (Locally)</h2>
+    <p>All data stays on your device, stored in your browser's local IndexedDB.</p>
+
+    <h3>Browsing History</h3>
+    <ul>
+      <li>The extension reads the <strong>title and URL</strong> of pages you visit.</li>
+      <li>This data is stored locally in IndexedDB — never transmitted anywhere.</li>
+    </ul>
+
+    <h3>Page Content</h3>
+    <ul>
+      <li>The background service worker may read the <strong>title and meta description</strong> of pages to improve search quality.</li>
+      <li>No full page content, passwords, form data, or authenticated content is stored.</li>
+    </ul>
+
+    <h3>Embeddings</h3>
+    <ul>
+      <li>Titles and URLs are converted into vector embeddings via the OpenAI API.</li>
+      <li>These embeddings are stored locally in IndexedDB alongside the original text.</li>
+    </ul>
+
+    <h2>Your OpenAI API Key</h2>
+    <ul>
+      <li>You provide your own OpenAI API key in the extension settings.</li>
+      <li>It is stored in <code>chrome.storage.local</code> — local to your browser, not synced to any cloud by this extension.</li>
+      <li>It is used <strong>only</strong> to make requests from your browser directly to <code>api.openai.com</code> (embeddings and chat).</li>
+      <li>The developer never sees, receives, or stores your API key.</li>
+    </ul>
+
+    <h2>Third-Party Services</h2>
+    <p>The only external service this extension contacts is <strong>OpenAI</strong> (<code>api.openai.com</code>), and only when you trigger an embedding or chat action. Your use of OpenAI is governed by <a href="https://openai.com/privacy" target="_blank" rel="noopener">OpenAI's Privacy Policy</a>.</p>
+
+    <h2>Data Deletion</h2>
+    <p>All extension data lives in your browser's IndexedDB. Delete it any time by uninstalling the extension or clearing its site data in Chrome settings. There is no remote copy to request deletion of.</p>
+
+    <h2>Children's Privacy</h2>
+    <p>This extension is not directed at children under 13 and does not knowingly collect any information from children.</p>
+
+    <h2>Changes to This Policy</h2>
+    <p>Any changes will be published in the extension's repository with a new effective date. Continued use after changes constitutes acceptance.</p>
+
+    <div class="contact">
+      Questions? Contact us at <a href="mailto:privacy@askyourpast.app">privacy@askyourpast.app</a>
+    </div>
+  </div>
+</body>
+</html>

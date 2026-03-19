@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Ask Your Past",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "short_name": "Ask Your Past",
   "description": "Semantic search over your browsing history using AI",
+  "homepage_url": "https://github.com/mriziq/ask-your-past",
   "permissions": ["history", "storage", "tabs"],
   "background": {
     "service_worker": "src/background/index.ts",
