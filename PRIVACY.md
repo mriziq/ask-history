@@ -72,4 +72,4 @@ If this policy changes, the updated version will be published in the extension's
 
 ## Contact
 
-If you have questions about this privacy policy, contact: **privacy@askyourpast.app**
+If you have questions about this privacy policy, contact: **amerkmriziq@gmail.com**
