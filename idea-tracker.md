@@ -4,6 +4,12 @@ Ideas for future exploration and experimentation.
 
 ---
 
+## Naming
+
+- **Candidates:** Vantage, Resurface, Trailhead, Retrace, LocalMind, Hindsight, Breadcrumb, Archivist
+
+---
+
 ## Platform
 
 - **Safari/WebKit extension** — port to Safari using Apple's `safari-web-extension-converter`. Requires Xcode wrapper + App Store distribution. Main challenge: `chrome.history` API is limited in Safari, so backfill would rely solely on the content script capturing pages as visited. Needs a separate build target (replacing `@crxjs/vite-plugin`).
