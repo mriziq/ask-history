@@ -12,7 +12,7 @@ export function Settings({ onSave, indexedCount }: SettingsProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (key.trim()) {
-      chrome.storage.local.set({ openaiApiKey: key.trim() });
+      chrome.storage.local.set({ geminiApiKey: key.trim() });
       onSave(key.trim());
     }
   }
@@ -74,7 +74,7 @@ export function Settings({ onSave, indexedCount }: SettingsProps) {
               className="font-mono text-xs tracking-widest uppercase mb-3"
               style={{ color: "var(--muted)" }}
             >
-              OpenAI API Key
+              Gemini API Key
             </p>
             <div
               style={{
@@ -89,7 +89,7 @@ export function Settings({ onSave, indexedCount }: SettingsProps) {
                 onChange={(e) => setKey(e.target.value)}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
-                placeholder="sk-···"
+                placeholder="AIza···"
                 autoFocus
                 style={{
                   background: "transparent",

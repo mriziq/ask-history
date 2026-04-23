@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useChat } from "ai/react";
 import { tool, streamText } from "ai";
 import { z } from "zod";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { MessageList } from "./components/MessageList";
 import { ChatInput } from "./components/ChatInput";
 import { Config } from "./components/Config";
@@ -20,6 +20,14 @@ interface Stats {
 }
 
 const EMPTY_STATS: Stats = { total: 0, enriched: 0, unenriched: 0, embedded: 0, pending: 0 };
+
+function safeHostname(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
 
 interface ChatAppProps {
   apiKey: string;
@@ -88,55 +96,71 @@ export default function ChatApp({ apiKey, theme, onThemeChange, onSignOut, onCha
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   });
 
-  const openai = createOpenAI({ apiKey });
+  const gemini = createGoogleGenerativeAI({ apiKey });
 
   const { messages, input, handleInputChange, handleSubmit, append, isLoading } = useChat({
     api: "unused",
     fetch: async (_url, options) => {
       const body = JSON.parse(options?.body as string);
       const result = streamText({
-        model: openai("gpt-4o"),
+        model: gemini("gemini-3-flash-preview"),
         system:
-          "You are a helpful assistant that answers questions about the user's browsing history.\n\n" +
+          `You are a helpful assistant that answers questions about the user's browsing history. Today's date is ${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}.\n\n` +
           "You have two tools:\n" +
-          "- searchHistory: for topic/content questions (\"did I read about X?\", \"find pages about Y\")\n" +
-          "- getRecentHistory: for time-based questions (\"what did I last visit?\", \"what was I watching?\", \"what did I do yesterday?\", \"show my recent history\")\n\n" +
+          "- searchHistory: for topic/content questions (\"did I read about X?\", \"find pages about Y\"). Supports optional date range filtering.\n" +
+          "- getRecentHistory: for time-based or recency questions (\"what did I last visit?\", \"what sites did I visit last week?\", \"show my recent history\"). Supports optional date range and domain filtering.\n\n" +
           "Rules:\n" +
-          "- ALWAYS use getRecentHistory for any question involving 'last', 'recent', 'latest', 'just', 'yesterday', 'today', or asking what the user was doing.\n" +
+          "- For questions involving a time range ('last week', 'yesterday', 'this month', 'in March'), pass startTime and endTime as ISO date strings (e.g. '2026-04-16') to the appropriate tool.\n" +
+          "- ALWAYS use getRecentHistory for questions about 'last', 'recent', 'latest', 'just', 'yesterday', 'today', or what the user was doing.\n" +
           "- ALWAYS include the exact full URL in your answer, never just a domain root like 'youtube.com'.\n" +
           "- If a YouTube URL contains '/watch?v=', that is a specific video — cite both its title and full URL.\n" +
+          "- Use the excerpt field to give detailed answers about page content when relevant.\n" +
           "- If you cannot find a specific result, say so clearly rather than guessing or linking to a homepage.",
         messages: body.messages,
         tools: {
           searchHistory: tool({
             description:
-              "Search the user's browsing history by topic or content. Use for questions like 'did I read about X?' or 'find pages about Y'. Not for recency questions.",
+              "Search the user's browsing history by topic or content. Use for questions like 'did I read about X?' or 'find pages about Y'. Optionally filter by date range.",
             parameters: z.object({
               query: z.string().describe("The topic or content to search for"),
+              startTime: z.string().optional().describe("Start of date range as ISO date string, e.g. '2026-04-16'"),
+              endTime: z.string().optional().describe("End of date range as ISO date string, e.g. '2026-04-23'"),
             }),
-            execute: async ({ query }) => {
-              const results = await searchHistory(query, apiKey);
+            execute: async ({ query, startTime, endTime }) => {
+              const start = startTime ? new Date(startTime).getTime() : undefined;
+              const end = endTime ? new Date(endTime + "T23:59:59").getTime() : undefined;
+              const results = await searchHistory(query, apiKey, 10, start, end);
               return results.map((r) => ({
                 url: r.url,
                 title: r.title,
+                domain: safeHostname(r.url),
                 visitedAt: new Date(r.visitedAt).toLocaleString(),
+                visitedAtTimestamp: r.visitedAt,
                 relevanceScore: r.score.toFixed(3),
+                excerpt: r.excerpt ?? null,
               }));
             },
           }),
           getRecentHistory: tool({
             description:
-              "Get the most recently visited pages, optionally filtered by a domain. Use for questions like 'what did I last watch/visit/read?' or 'what was I doing recently?'",
+              "Get visited pages sorted by recency, optionally filtered by domain and/or date range. Use for questions like 'what did I last watch/visit/read?', 'what sites did I visit last week?', or 'what was I doing recently?'",
             parameters: z.object({
               limit: z.number().optional().describe("Max results to return (default 20)"),
-              domain: z.string().optional().describe("Filter by domain, e.g. 'youtube.com'"),
+              domain: z.string().optional().describe("Filter by domain substring, e.g. 'youtube.com'"),
+              startTime: z.string().optional().describe("Start of date range as ISO date string, e.g. '2026-04-16'"),
+              endTime: z.string().optional().describe("End of date range as ISO date string, e.g. '2026-04-23'"),
             }),
-            execute: async ({ limit, domain }) => {
-              const results = await getRecentItems(limit ?? 20, domain);
+            execute: async ({ limit, domain, startTime, endTime }) => {
+              const start = startTime ? new Date(startTime).getTime() : undefined;
+              const end = endTime ? new Date(endTime + "T23:59:59").getTime() : undefined;
+              const results = await getRecentItems(limit ?? 20, domain, start, end);
               return results.map((r) => ({
                 url: r.url,
                 title: r.title,
+                domain: safeHostname(r.url),
                 visitedAt: new Date(r.visitedAt).toLocaleString(),
+                visitedAtTimestamp: r.visitedAt,
+                excerpt: r.excerpt ?? null,
               }));
             },
           }),

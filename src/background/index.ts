@@ -1,64 +1,128 @@
 import { saveHistoryItem, getHistoryItem } from "../shared/db";
 
-// Open the app in a full tab when the extension icon is clicked
+const FETCH_TIMEOUT_MS = 8_000;
+const MAX_IMAGES = 5;
+const MAX_AUDIO_FILES = 1;
+const EXCERPT_MAX_CHARS = 400;
+const EXCERPT_BODY_CHARS = 300;
+const EMBED_CONTENT_MAX_CHARS = 30_000;
+const EMBED_CONTENT_BODY_CHARS = 29_800;
+const NON_CONTENT_ICON_HINTS = ["favicon", "icon", "avatar", "logo"];
+const SKIP_PREFIXES = ["chrome://", "chrome-extension://", "about:", "data:", "file://"];
+
 chrome.action.onClicked.addListener(() => {
   chrome.tabs.create({ url: chrome.runtime.getURL("src/newtab/index.html") });
 });
 
-// ── CORS-safe page fetching ──────────────────────────────────────────────────
-// The newtab page can't reliably fetch cross-origin URLs (servers reject
-// non-http origins). Background SWs with host_permissions bypass CORS.
+function getMainContentRoot(doc: Document): HTMLElement | null {
+  return (doc.querySelector("article") ?? doc.querySelector("main") ?? doc.body) as HTMLElement | null;
+}
 
-function getBgMeta(doc: Document, selectors: string[]): string {
-  for (const sel of selectors) {
-    const val = doc.querySelector(sel)?.getAttribute("content")?.trim();
-    if (val) return val;
+function getMetaContent(doc: Document, selectors: string[]): string {
+  for (const selector of selectors) {
+    const content = doc.querySelector(selector)?.getAttribute("content")?.trim();
+    if (content) return content;
   }
   return "";
 }
 
-function extractBgText(doc: Document): string {
-  const clone = (doc.querySelector("article") ?? doc.querySelector("main") ?? doc.body)
-    ?.cloneNode(true) as HTMLElement | null;
+function extractVisibleText(doc: Document, maxChars: number): string {
+  const clone = getMainContentRoot(doc)?.cloneNode(true) as HTMLElement | null;
   if (!clone) return "";
-  clone.querySelectorAll("script, style, nav, header, footer, aside").forEach((el) => el.remove());
-  return (clone.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 800);
+  clone.querySelectorAll("script,style,nav,header,footer,aside,button,form").forEach((el) => el.remove());
+  return (clone.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, maxChars);
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type === "FETCH_PAGE") {
-    const url = message.url as string;
-    fetch(url, { signal: AbortSignal.timeout(8000), credentials: "omit" })
-      .then(async (res) => {
-        if (!res.ok) return sendResponse(null);
-        const ct = res.headers.get("content-type") ?? "";
-        if (!ct.includes("text/html")) return sendResponse(null);
-        const html = await res.text();
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        const title =
-          getBgMeta(doc, ['meta[property="og:title"]', 'meta[name="twitter:title"]']) ||
-          doc.title || "";
-        const description = getBgMeta(doc, [
-          'meta[property="og:description"]',
-          'meta[name="twitter:description"]',
-          'meta[name="description"]',
-        ]);
-        const bodyText = extractBgText(doc);
-        const excerpt = [description, bodyText].filter(Boolean).join(" ").slice(0, 1000);
-        sendResponse({ title, excerpt });
-      })
-      .catch(() => sendResponse(null));
-    return true; // keep message channel open for async response
-  }
-});
+function looksLikeIconUrl(url: string): boolean {
+  const lower = url.toLowerCase();
+  return NON_CONTENT_ICON_HINTS.some((hint) => lower.includes(hint));
+}
 
-const SKIP_PREFIXES = ["chrome://", "chrome-extension://", "about:", "data:", "file://"];
+function extractImageUrls(doc: Document): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+
+  const ogImage = getMetaContent(doc, ['meta[property="og:image"]', 'meta[name="twitter:image"]']);
+  if (ogImage) {
+    seen.add(ogImage);
+    urls.push(ogImage);
+  }
+
+  getMainContentRoot(doc)?.querySelectorAll("img[src]").forEach((img) => {
+    const src = img.getAttribute("src") ?? "";
+    if (!src || seen.has(src) || src.startsWith("data:")) return;
+    if (looksLikeIconUrl(src)) return;
+    // Without rendered dimensions, we can only keep absolute http(s) URLs.
+    if (!src.startsWith("http")) return;
+    seen.add(src);
+    urls.push(src);
+  });
+
+  return urls.slice(0, MAX_IMAGES);
+}
+
+function extractAudioUrls(doc: Document): string[] {
+  const urls: string[] = [];
+  doc.querySelectorAll("audio").forEach((audioEl) => {
+    const src = audioEl.getAttribute("src") || audioEl.querySelector("source")?.getAttribute("src") || "";
+    if (!src || urls.includes(src)) return;
+    const pathLower = src.split("?")[0].toLowerCase();
+    if (pathLower.endsWith(".mp3") || pathLower.endsWith(".wav")) urls.push(src);
+  });
+  return urls.slice(0, MAX_AUDIO_FILES);
+}
 
 function shouldSkip(url: string): boolean {
   return SKIP_PREFIXES.some((prefix) => url.startsWith(prefix));
 }
 
-// Capture new page visits — fast DB write only, no network
+function parsePageMetadata(doc: Document) {
+  const title =
+    getMetaContent(doc, ['meta[property="og:title"]', 'meta[name="twitter:title"]']) ||
+    doc.title ||
+    "";
+  const description = getMetaContent(doc, [
+    'meta[property="og:description"]',
+    'meta[name="twitter:description"]',
+    'meta[name="description"]',
+  ]);
+
+  const bodyShort = extractVisibleText(doc, EXCERPT_BODY_CHARS);
+  const excerpt = [description, bodyShort].filter(Boolean).join(" ").slice(0, EXCERPT_MAX_CHARS);
+  const embedContent = [description, extractVisibleText(doc, EMBED_CONTENT_BODY_CHARS)]
+    .filter(Boolean)
+    .join(" ")
+    .slice(0, EMBED_CONTENT_MAX_CHARS);
+
+  return {
+    title,
+    excerpt,
+    embedContent,
+    mediaUrls: {
+      images: extractImageUrls(doc),
+      audio: extractAudioUrls(doc),
+    },
+  };
+}
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === "FETCH_PAGE") {
+    const url = message.url as string;
+    fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), credentials: "omit" })
+      .then(async (response) => {
+        if (!response.ok) return sendResponse(null);
+        const contentType = response.headers.get("content-type") ?? "";
+        if (!contentType.includes("text/html")) return sendResponse(null);
+
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        sendResponse(parsePageMetadata(doc));
+      })
+      .catch(() => sendResponse(null));
+    return true;
+  }
+});
+
 chrome.history.onVisited.addListener((result) => {
   const url = result.url ?? "";
   const title = result.title ?? url;
@@ -66,33 +130,46 @@ chrome.history.onVisited.addListener((result) => {
 
   getHistoryItem(url).then((existing) => {
     if (!existing) {
-      saveHistoryItem({ url, title, visitedAt: Date.now(), embedding: null, excerpt: null, enriched: false });
+      saveHistoryItem({
+        url,
+        title,
+        visitedAt: Date.now(),
+        embedding: null,
+        chunkEmbeddings: [],
+        excerpt: null,
+        embedContent: null,
+        mediaUrls: { images: [], audio: [] },
+        enriched: false,
+      });
     }
   });
 });
 
-// Receive rich page content from the content script
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type !== "PAGE_CONTENT") return;
 
-  const { url, title, excerpt } = message.payload as {
+  const { url, title, excerpt, embedContent, mediaUrls } = message.payload as {
     url: string;
     title: string;
     excerpt: string;
+    embedContent: string;
+    mediaUrls: { images: string[]; audio: string[] };
   };
 
   if (!url || shouldSkip(url)) return;
 
   getHistoryItem(url).then((existing) => {
-    if (existing?.enriched) return; // already have rich content for this page
+    if (existing?.enriched) return;
 
     saveHistoryItem({
       url,
       title: title || existing?.title || url,
       visitedAt: existing?.visitedAt ?? Date.now(),
-      // If already embedded with thin data, clear it so it gets re-embedded with rich content
-      embedding: existing?.enriched ? existing.embedding : null,
+      embedding: existing?.embedding ?? null,
+      chunkEmbeddings: existing?.chunkEmbeddings ?? [],
       excerpt,
+      embedContent,
+      mediaUrls: mediaUrls ?? { images: [], audio: [] },
       enriched: true,
     });
   });

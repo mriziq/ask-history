@@ -11,8 +11,8 @@ export default function App() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    chrome.storage.local.get(["openaiApiKey", "theme", "onboardingDone"], (result) => {
-      setApiKey(result.openaiApiKey ?? null);
+    chrome.storage.local.get(["geminiApiKey", "theme", "onboardingDone"], (result) => {
+      setApiKey(result.geminiApiKey ?? null);
       setOnboardingDone(!!result.onboardingDone);
       const saved = result.theme === "light" ? "light" : "dark";
       setTheme(saved);
@@ -52,12 +52,12 @@ export default function App() {
         theme={theme}
         onThemeChange={applyTheme}
         onSignOut={() => {
-          chrome.storage.local.remove(["openaiApiKey"]);
+          chrome.storage.local.remove(["geminiApiKey"]);
           setApiKey(null);
           setOnboardingDone(true);
         }}
         onChangeKey={(key) => {
-          chrome.storage.local.set({ openaiApiKey: key });
+          chrome.storage.local.set({ geminiApiKey: key });
           setApiKey(key);
         }}
       />
