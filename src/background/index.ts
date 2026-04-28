@@ -10,8 +10,8 @@ const EMBED_CONTENT_BODY_CHARS = 29_800;
 const NON_CONTENT_ICON_HINTS = ["favicon", "icon", "avatar", "logo"];
 const SKIP_PREFIXES = ["chrome://", "chrome-extension://", "about:", "data:", "file://"];
 
-chrome.action.onClicked.addListener(() => {
-  chrome.tabs.create({ url: chrome.runtime.getURL("src/newtab/index.html") });
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
 
 function getMainContentRoot(doc: Document): HTMLElement | null {

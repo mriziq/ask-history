@@ -1,7 +1,7 @@
 import { openDB, type IDBPDatabase } from "idb";
 import type { HistoryItem } from "./types";
 
-const DB_NAME = "ask-your-past";
+const DB_NAME = "retrace";
 const DB_VERSION = 3;
 const STORE = "history_items";
 const BINARY_STORE = "binary_index";

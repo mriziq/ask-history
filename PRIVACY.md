@@ -1,4 +1,4 @@
-# Privacy Policy — Ask Your Past
+# Privacy Policy — Retrace
 
 **Last updated: March 17, 2026**
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Ask Your Past is a Chrome extension that lets you search and chat with your own browsing history. It is designed with privacy as a first principle: **no data is ever sent to the developer, and no backend server exists.**
+Retrace is a Chrome extension that lets you search and chat with your own browsing history. It is designed with privacy as a first principle: **no data is ever sent to the developer, and no backend server exists.**
 
 ---
 

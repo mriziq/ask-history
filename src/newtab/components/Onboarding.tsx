@@ -41,8 +41,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <div
         className="absolute pointer-events-none"
         style={{
-          width: 700,
-          height: 700,
+          width: 350,
+          height: 350,
           borderRadius: "50%",
           background: "radial-gradient(circle, rgba(200,146,74,0.07) 0%, transparent 65%)",
           top: "50%",
@@ -99,8 +99,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   letterSpacing: "-0.02em",
                 }}
               >
-                ask your<br />
-                <span style={{ color: "var(--amber)" }}>past.</span>
+                re<span style={{ color: "var(--amber)" }}>trace.</span>
               </h1>
             </div>
 

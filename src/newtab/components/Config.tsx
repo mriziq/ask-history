@@ -70,7 +70,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between px-6 shrink-0"
+        className="flex items-center justify-between px-4 shrink-0"
         style={{ borderBottom: "1px solid var(--ink-2)", background: "var(--ink-1)", height: 56 }}
       >
         <span
@@ -96,7 +96,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
         </button>
       </div>
 
-      <div className="flex flex-col gap-8 px-6 py-8">
+      <div className="flex flex-col gap-8 px-4 py-8">
 
         {/* Archive Stats */}
         <section>

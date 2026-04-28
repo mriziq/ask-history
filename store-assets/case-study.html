@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retrace — How People Use It</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Dark (default) ── */
+    :root {
+      --ink:       #0E0E12;
+      --ink-1:     #181820;
+      --ink-2:     #232330;
+      --ink-3:     #333348;
+      --amber:     #D4974E;
+      --amber-b:   #EDB46A;
+      --amber-dim: #6B4A20;
+      --cream:     #F0EAE0;
+      --cream-2:   #C4BCAF;
+      --muted:     #7A7890;
+      --dim:       #52505E;
+      --toggle-bg: #232330;
+    }
+
+    /* ── Light ── */
+    [data-theme="light"] {
+      --ink:       #F5F0E8;
+      --ink-1:     #EDE6D8;
+      --ink-2:     #DDD4C4;
+      --ink-3:     #C4B8A8;
+      --amber:     #9A6520;
+      --amber-b:   #B87C2A;
+      --amber-dim: #C8943A;
+      --cream:     #1A1510;
+      --cream-2:   #4A4035;
+      --muted:     #7A7060;
+      --dim:       #A09080;
+      --toggle-bg: #DDD4C4;
+    }
+
+    /* System preference — only applies if no explicit data-theme has been set by JS */
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme]) {
+        --ink:       #F5F0E8;
+        --ink-1:     #EDE6D8;
+        --ink-2:     #DDD4C4;
+        --ink-3:     #C4B8A8;
+        --amber:     #9A6520;
+        --amber-b:   #B87C2A;
+        --amber-dim: #C8943A;
+        --cream:     #1A1510;
+        --cream-2:   #4A4035;
+        --muted:     #7A7060;
+        --dim:       #A09080;
+        --toggle-bg: #DDD4C4;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'Lora', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    body { background: var(--ink); padding: 0 1.5rem 6rem; transition: background 0.25s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* ── Theme toggle button ── */
+    .theme-toggle {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 100;
+      background: var(--toggle-bg);
+      border: 1px solid var(--ink-3);
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle:hover { border-color: var(--amber); }
+
+    .theme-toggle-icon {
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    .theme-toggle-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Typography ── */
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 2.25rem;
+    }
+
+    .headline {
+      font-family: 'Lora', Georgia, serif;
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.15;
+      color: var(--cream);
+      letter-spacing: -0.025em;
+      margin-bottom: 1.5rem;
+    }
+    .headline em { color: var(--amber); font-style: italic; }
+
+    .lede {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--cream-2);
+      line-height: 1.8;
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .section-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      color: var(--amber);
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.55rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--cream);
+      margin-bottom: 1.75rem;
+      letter-spacing: -0.015em;
+      line-height: 1.3;
+    }
+
+    .prose {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1rem;
+      color: var(--cream-2);
+      line-height: 1.9;
+      max-width: 580px;
+      margin: 0 auto 1.25rem;
+    }
+    .prose:last-child { margin-bottom: 0; }
+    .prose strong { color: var(--cream); font-weight: 500; }
+
+    .big-statement {
+      font-family: 'Lora', Georgia, serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--cream);
+      line-height: 1.4;
+      max-width: 560px;
+      margin: 0 auto 2rem;
+      letter-spacing: -0.01em;
+    }
+    .big-statement em { color: var(--amber); }
+
+    .pull-quote {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.65;
+      max-width: 520px;
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
+      position: relative;
+    }
+    .pull-quote::before {
+      content: '"';
+      position: absolute;
+      left: 0; top: -0.15em;
+      font-size: 3rem;
+      color: var(--amber-dim);
+      font-family: 'Lora', Georgia, serif;
+      line-height: 1;
+    }
+
+    /* ── Layout ── */
+    .header {
+      padding: 5.5rem 0 4rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .header-rule {
+      width: 40px; height: 1px;
+      background: var(--amber-dim);
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: 4rem 0;
+      border-top: 1px solid var(--ink-3);
+      animation: fadeUp 0.7s ease both;
+    }
+    .section:nth-child(2) { animation-delay:.07s }
+    .section:nth-child(3) { animation-delay:.12s }
+    .section:nth-child(4) { animation-delay:.17s }
+    .section:nth-child(5) { animation-delay:.22s }
+    .section:nth-child(6) { animation-delay:.27s }
+    .section:nth-child(7) { animation-delay:.32s }
+
+    /* ── VIS 1: History scroll ── */
+    .vis-history {
+      margin: 2.5rem auto 0;
+      max-width: 620px;
+      position: relative;
+      height: 260px;
+      overflow: hidden;
+      border: 1px solid var(--ink-3);
+      border-radius: 4px;
+      background: var(--ink-1);
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .vis-history-inner {
+      position: absolute;
+      inset: 0;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    @keyframes scrollUrls {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    .url-scroll-track { animation: scrollUrls 14s linear infinite; }
+
+    .url-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--ink-2);
+    }
+
+    .url-row-favicon {
+      width: 12px; height: 12px;
+      border-radius: 2px;
+      background: var(--ink-3);
+      flex-shrink: 0;
+    }
+
+    .url-row-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      text-align: left;
+    }
+
+    .url-row-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: var(--ink-3);
+      flex-shrink: 0;
+    }
+
+    .url-row.found .url-row-text    { color: var(--amber); }
+    .url-row.found .url-row-favicon { background: var(--amber-dim); }
+    .url-row.found .url-row-date    { color: var(--muted); }
+    .url-row.found { background: rgba(180,120,42,0.07); border-radius: 2px; }
+
+    .vis-history::before,
+    .vis-history::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 60px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .vis-history::before { top: 0;    background: linear-gradient(to bottom, var(--ink-1), transparent); }
+    .vis-history::after  { bottom: 0; background: linear-gradient(to top,   var(--ink-1), transparent); }
+
+    .vis-search-bar {
+      position: absolute;
+      top: 14px; left: 50%; transform: translateX(-50%);
+      z-index: 3;
+      background: var(--ink-2);
+      border: 1px solid var(--ink-3);
+      border-radius: 3px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 320px;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .vis-search-prompt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    @keyframes typeCursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .vis-search-cursor {
+      width: 1px; height: 11px;
+      background: var(--amber);
+      display: inline-block;
+      animation: typeCursor 1s ease-in-out infinite;
+    }
+
+    .vis-caption {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      margin-top: 0.75rem;
+      text-align: center;
+    }
+
+    /* ── Demo placeholder ── */
+    .demo-placeholder {
+      margin: 2.5rem auto 0;
+      max-width: 620px;
+      border: 2px dashed var(--amber-dim);
+      border-radius: 4px;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(180,120,42,0.05);
+      position: relative;
+    }
+
+    .demo-placeholder-badge {
+      position: absolute;
+      top: -1px; right: -1px;
+      background: var(--amber-dim);
+      color: var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 0 4px 0 4px;
+    }
+
+    .demo-placeholder-icon { width: 48px; height: 48px; opacity: 0.4; }
+
+    .demo-placeholder-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .demo-placeholder-desc {
+      font-family: 'Lora', Georgia, serif;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 440px;
+      line-height: 1.7;
+    }
+
+    .demo-placeholder-steps {
+      text-align: left;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .demo-placeholder-steps li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--dim);
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .demo-placeholder-steps li::before {
+      content: attr(data-n);
+      color: var(--amber-dim);
+      flex-shrink: 0;
+    }
+
+    /* ── Scenarios ── */
+    .scenarios {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin: 2.5rem auto 0;
+      max-width: 640px;
+      text-align: left;
+    }
+
+    .scenario {
+      background: var(--ink-1);
+      border: 1px solid var(--ink-3);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .scenario-illustration {
+      width: 100%;
+      height: 120px;
+      display: block;
+    }
+
+    .scenario-body { padding: 1.25rem 1.4rem 1.4rem; }
+
+    .scenario-who {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.55rem;
+    }
+
+    .scenario-situation {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.88rem;
+      color: var(--cream-2);
+      line-height: 1.75;
+      font-style: italic;
+    }
+    .scenario-situation strong { color: var(--cream); font-style: normal; }
+
+    .scenario-query {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--ink-2);
+    }
+
+    .scenario-query-glyph {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--amber);
+      flex-shrink: 0;
+    }
+
+    .scenario-query-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--cream-2);
+      line-height: 1.55;
+      font-style: italic;
+    }
+
+    /* ── Chat demo ── */
+    .chat-demo {
+      background: var(--ink-1);
+      border: 1px solid var(--ink-3);
+      border-radius: 4px;
+      padding: 1.75rem;
+      margin: 2.5rem auto 0;
+      max-width: 620px;
+      text-align: left;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .chat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--ink-2);
+    }
+
+    .chat-exchange { display: flex; flex-direction: column; gap: 1.1rem; }
+
+    .chat-line {
+      display: grid;
+      grid-template-columns: 1.4rem 1fr;
+      gap: 0.8rem;
+      align-items: baseline;
+    }
+
+    .chat-glyph { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding-top: 0.1rem; }
+    .chat-glyph.user    { color: var(--amber); }
+    .chat-glyph.retrace { color: var(--dim); }
+
+    .chat-text { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.65; }
+    .chat-text.user    { color: var(--cream); }
+    .chat-text.retrace { color: var(--cream-2); }
+    .chat-text em      { color: var(--amber); font-style: normal; font-weight: 500; }
+
+    .chat-url {
+      color: var(--amber);
+      font-size: 0.7rem;
+      display: block;
+      margin-top: 0.3rem;
+      border-bottom: 1px solid var(--amber-dim);
+      width: fit-content;
+    }
+
+    .chat-divider {
+      height: 1px;
+      background: var(--ink-2);
+      margin: 0.1rem 0;
+      margin-left: 2.2rem;
+    }
+
+    /* ── Privacy panel ── */
+    .privacy-panel {
+      background: var(--ink-1);
+      border: 1px solid var(--ink-3);
+      border-radius: 4px;
+      padding: 2rem 2.25rem;
+      margin: 2.5rem auto 0;
+      max-width: 580px;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .privacy-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1.25rem;
+    }
+
+    .privacy-items { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; text-align: left; }
+
+    .privacy-items li {
+      display: grid;
+      grid-template-columns: 1.25rem 1fr;
+      gap: 0.65rem;
+      align-items: baseline;
+    }
+
+    .privacy-check { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--amber); }
+
+    .privacy-text { font-family: 'Lora', Georgia, serif; font-size: 0.9rem; color: var(--cream-2); line-height: 1.6; }
+
+    /* ── Simple stats ── */
+    .simple-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--ink-3);
+      border-radius: 4px;
+      margin: 2.5rem auto 0;
+      max-width: 540px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+
+    .simple-stat { padding: 1.5rem 1rem; border-right: 1px solid var(--ink-3); transition: border-color 0.25s; }
+    .simple-stat:last-child { border-right: none; }
+
+    .simple-stat-n {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: var(--amber);
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .simple-stat-l {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    .footer { padding: 3.5rem 0 2rem; text-align: center; }
+
+    .footer-wordmark {
+      font-family: 'Lora', Georgia, serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--cream-2);
+      margin-bottom: 1rem;
+    }
+    .footer-wordmark em { color: var(--amber); }
+
+    .footer-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      line-height: 2;
+    }
+    .footer-text a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--ink-3); }
+
+    /* ── SVG theme support ── */
+    .svg-bg      { fill: var(--ink-1); }
+    .svg-bg-2    { fill: var(--ink-2); }
+    .svg-border  { fill: var(--ink-3); }
+    .svg-dim     { fill: var(--dim); }
+    .svg-muted   { fill: var(--muted); }
+    .svg-cream-2 { fill: var(--cream-2); }
+    .svg-amber   { fill: var(--amber); }
+    .svg-amber-d { fill: var(--amber-dim); }
+    .svg-ink     { fill: var(--ink); }
+
+    .svg-stroke-border { stroke: var(--ink-3); }
+    .svg-stroke-dim    { stroke: var(--dim); }
+    .svg-stroke-2      { stroke: var(--ink-2); }
+    .svg-stroke-amber  { stroke: var(--amber); }
+    .svg-text-muted    { fill: var(--muted); }
+    .svg-text-cream-2  { fill: var(--cream-2); }
+    .svg-text-amber    { fill: var(--amber); }
+    .svg-text-dim      { fill: var(--dim); }
+    .svg-text-border   { fill: var(--ink-3); }
+    .svg-text-amber-d  { fill: var(--amber-dim); }
+
+    @media (max-width: 540px) {
+      .scenarios      { grid-template-columns: 1fr; }
+      .simple-stats   { grid-template-columns: 1fr; }
+      .simple-stat    { border-right: none; border-bottom: 1px solid var(--ink-3); }
+      .simple-stat:last-child { border-bottom: none; }
+      .headline       { font-size: 2rem; }
+      .vis-search-bar { min-width: 260px; }
+      .theme-toggle   { top: 0.75rem; right: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Theme toggle ── -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <span class="theme-toggle-icon" id="themeIcon">☀</span>
+  <span class="theme-toggle-label" id="themeLabel">Light</span>
+</button>
+
+<div class="page">
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <p class="eyebrow">Retrace</p>
+    <h1 class="headline">You've read it.<br>You just can't<br><em>find it.</em></h1>
+    <p class="lede">How Retrace turns your browsing history into a conversation — so the things you've already found don't stay lost forever.</p>
+
+    <div class="demo-placeholder" style="margin-top:2.5rem;text-align:left">
+      <span class="demo-placeholder-badge">📹 Replace with demo GIF</span>
+      <svg class="demo-placeholder-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="10" width="40" height="28" rx="3" stroke="var(--amber)" stroke-width="1.5"/>
+        <circle cx="24" cy="24" r="7" stroke="var(--amber)" stroke-width="1.5"/>
+        <circle cx="24" cy="24" r="2.5" fill="var(--amber)"/>
+        <line x1="4" y1="16" x2="44" y2="16" stroke="var(--amber)" stroke-width="1.5"/>
+        <circle cx="8" cy="13" r="1.5" fill="var(--amber-dim)"/>
+        <circle cx="13" cy="13" r="1.5" fill="var(--amber-dim)"/>
+        <circle cx="18" cy="13" r="1.5" fill="var(--amber-dim)"/>
+      </svg>
+      <p class="demo-placeholder-title">Live Demo Recording</p>
+      <p class="demo-placeholder-desc">A 15–30 second screen recording showing Retrace answering a real question from browsing history.</p>
+      <ul class="demo-placeholder-steps">
+        <li data-n="1.">Open Retrace in a new tab</li>
+        <li data-n="2.">Type: "What was that article I read about sleep and memory?"</li>
+        <li data-n="3.">Let the response stream in — show the amber URL appearing</li>
+        <li data-n="4.">Click the link to confirm it found the right page</li>
+        <li data-n="—">Export as GIF or WebM, drop here at ~620×380px</li>
+      </ul>
+    </div>
+
+    <div class="header-rule" style="margin-top:3rem"></div>
+  </header>
+
+  <!-- ── 01 The Problem ── -->
+  <section class="section">
+    <p class="section-tag">The Problem</p>
+    <p class="section-number">01</p>
+
+    <p class="big-statement">
+      Your browser history is a graveyard of<br><em>good intentions</em> and half-remembered ideas.
+    </p>
+
+    <p class="prose">
+      You read something last Tuesday. It was good — really good. You thought you'd remember it.
+      A week later you need it. You open Chrome. Hundreds of URLs scroll past, meaningless out of context.
+      You give up.
+    </p>
+
+    <div class="vis-history" aria-label="Browser history doom-scroll visualization">
+      <div class="vis-search-bar">
+        <span class="vis-search-prompt">that article about sleep and memory</span>
+        <span class="vis-search-cursor"></span>
+      </div>
+      <div class="vis-history-inner">
+        <div class="url-scroll-track">
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">reddit.com/r/programming/comments/1b7k2m/rust_vs_go_for_backend</span><span class="url-row-date">2d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">youtube.com/watch?v=dQw4w9WgXcQ</span><span class="url-row-date">2d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">news.ycombinator.com/item?id=39284756</span><span class="url-row-date">3d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">amazon.com/s?k=mechanical+keyboard</span><span class="url-row-date">3d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">stackoverflow.com/questions/41374238/flexbox-align-items</span><span class="url-row-date">4d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">github.com/microsoft/vscode/issues/182034</span><span class="url-row-date">4d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">nytimes.com/2026/03/14/health/sleep-deprivation-memory.html</span><span class="url-row-date">5d ago</span></div>
+          <div class="url-row found"><div class="url-row-favicon"></div><span class="url-row-text">theatlantic.com/science/archive/2026/03/rem-sleep-memory-consolidation</span><span class="url-row-date">6d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">twitter.com/home</span><span class="url-row-date">6d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">figma.com/file/Hk29mXaB7Qf1/Design-System</span><span class="url-row-date">7d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">docs.anthropic.com/claude/reference/messages-post</span><span class="url-row-date">7d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">wikipedia.org/wiki/Panama_Canal</span><span class="url-row-date">8d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">css-tricks.com/snippets/css/a-guide-to-flexbox</span><span class="url-row-date">8d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">google.com/search?q=best+espresso+machine+2026</span><span class="url-row-date">9d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">vercel.com/docs/functions/edge-functions</span><span class="url-row-date">9d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">medium.com/@someone/how-i-built-a-saas-in-a-weekend</span><span class="url-row-date">10d ago</span></div>
+          <!-- mirror for seamless loop -->
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">reddit.com/r/programming/comments/1b7k2m/rust_vs_go_for_backend</span><span class="url-row-date">2d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">youtube.com/watch?v=dQw4w9WgXcQ</span><span class="url-row-date">2d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">news.ycombinator.com/item?id=39284756</span><span class="url-row-date">3d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">amazon.com/s?k=mechanical+keyboard</span><span class="url-row-date">3d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">stackoverflow.com/questions/41374238/flexbox-align-items</span><span class="url-row-date">4d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">github.com/microsoft/vscode/issues/182034</span><span class="url-row-date">4d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">nytimes.com/2026/03/14/health/sleep-deprivation-memory.html</span><span class="url-row-date">5d ago</span></div>
+          <div class="url-row found"><div class="url-row-favicon"></div><span class="url-row-text">theatlantic.com/science/archive/2026/03/rem-sleep-memory-consolidation</span><span class="url-row-date">6d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">twitter.com/home</span><span class="url-row-date">6d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">figma.com/file/Hk29mXaB7Qf1/Design-System</span><span class="url-row-date">7d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">docs.anthropic.com/claude/reference/messages-post</span><span class="url-row-date">7d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">wikipedia.org/wiki/Panama_Canal</span><span class="url-row-date">8d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">css-tricks.com/snippets/css/a-guide-to-flexbox</span><span class="url-row-date">8d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">google.com/search?q=best+espresso+machine+2026</span><span class="url-row-date">9d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">vercel.com/docs/functions/edge-functions</span><span class="url-row-date">9d ago</span></div>
+          <div class="url-row"><div class="url-row-favicon"></div><span class="url-row-text">medium.com/@someone/how-i-built-a-saas-in-a-weekend</span><span class="url-row-date">10d ago</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="vis-caption">The needle is in there. Retrace finds it.</p>
+
+    <div class="pull-quote">
+      You already found what you were looking for.<br>The hard part is finding it again.
+    </div>
+
+    <p class="prose">
+      This is the problem Retrace solves. Not by making you a better bookmarker —
+      but by turning your browsing history into something you can actually <strong>talk to</strong>.
+    </p>
+  </section>
+
+  <!-- ── 02 How It Works ── -->
+  <section class="section">
+    <p class="section-tag">How It Works</p>
+    <p class="section-number">02</p>
+
+    <h2 class="section-title">Just describe what you half-remember</h2>
+
+    <p class="prose">
+      Retrace runs quietly in the background, building a private index of every page you visit.
+      When you want to find something, open a new tab and ask — the same way you'd describe it to a friend.
+      No exact title needed. No URL. Just what you remember.
+    </p>
+
+    <!-- Embedding pipeline graphic -->
+    <svg viewBox="0 0 620 200" xmlns="http://www.w3.org/2000/svg" style="max-width:620px;margin:2.5rem auto 0;display:block;width:100%" aria-label="Embedding pipeline: page content types flow into Gemini Embedding 2 and are stored in a unified queryable index">
+
+      <!-- Label row -->
+      <text x="51"  y="10" font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-dim" text-anchor="middle" letter-spacing="1.5">FROM EACH PAGE</text>
+      <text x="497" y="10" font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-dim" text-anchor="middle" letter-spacing="1.5">YOUR INDEX</text>
+
+      <!-- Source boxes (left column) -->
+      <rect x="15" y="17"  width="72" height="26" rx="2" style="fill:var(--ink-2);stroke:var(--ink-3)" stroke-width="0.75"/>
+      <text x="51" y="30"  font-family="JetBrains Mono,monospace" font-size="8"   class="svg-text-muted" text-anchor="middle">🖼</text>
+      <text x="51" y="38"  font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-cream-2" text-anchor="middle">Image</text>
+
+      <rect x="15" y="51"  width="72" height="26" rx="2" style="fill:var(--ink-2);stroke:var(--ink-3)" stroke-width="0.75"/>
+      <text x="51" y="64"  font-family="JetBrains Mono,monospace" font-size="8"   class="svg-text-muted" text-anchor="middle">🎵</text>
+      <text x="51" y="72"  font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-cream-2" text-anchor="middle">Audio</text>
+
+      <rect x="15" y="85"  width="72" height="26" rx="2" style="fill:var(--ink-2);stroke:var(--amber)" stroke-width="0.75"/>
+      <text x="51" y="98"  font-family="JetBrains Mono,monospace" font-size="8"   class="svg-text-amber" text-anchor="middle">📹</text>
+      <text x="51" y="106" font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-amber" text-anchor="middle">Video</text>
+
+      <rect x="15" y="119" width="72" height="26" rx="2" style="fill:var(--ink-2);stroke:var(--ink-3)" stroke-width="0.75"/>
+      <text x="51" y="132" font-family="JetBrains Mono,monospace" font-size="8"   class="svg-text-muted" text-anchor="middle">📄</text>
+      <text x="51" y="140" font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-cream-2" text-anchor="middle">Text</text>
+
+      <rect x="15" y="153" width="72" height="26" rx="2" style="fill:var(--ink-2);stroke:var(--ink-3)" stroke-width="0.75"/>
+      <text x="51" y="166" font-family="JetBrains Mono,monospace" font-size="8"   class="svg-text-muted" text-anchor="middle">📑</text>
+      <text x="51" y="174" font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-cream-2" text-anchor="middle">Docs</text>
+
+      <!-- Convergence lines → center at x=205,y=100 -->
+      <line x1="87" y1="30"  x2="205" y2="100" class="svg-stroke-border" stroke-width="0.75"/>
+      <line x1="87" y1="64"  x2="205" y2="100" class="svg-stroke-border" stroke-width="0.75"/>
+      <line x1="87" y1="98"  x2="205" y2="100" class="svg-stroke-amber"  stroke-width="1" opacity="0.5"/>
+      <line x1="87" y1="132" x2="205" y2="100" class="svg-stroke-border" stroke-width="0.75"/>
+      <line x1="87" y1="166" x2="205" y2="100" class="svg-stroke-border" stroke-width="0.75"/>
+
+      <!-- Embedding engine box -->
+      <rect x="208" y="74" width="114" height="52" rx="3" style="fill:var(--ink-1);stroke:var(--amber)" stroke-width="1"/>
+      <text x="265" y="94"  font-family="JetBrains Mono,monospace" font-size="7.5" class="svg-text-amber" text-anchor="middle" letter-spacing="0.5">GEMINI</text>
+      <text x="265" y="106" font-family="JetBrains Mono,monospace" font-size="7.5" class="svg-text-amber" text-anchor="middle" letter-spacing="0.5">EMBEDDING 2</text>
+      <text x="265" y="118" font-family="JetBrains Mono,monospace" font-size="6"   class="svg-text-dim"   text-anchor="middle">3,072 dimensions</text>
+
+      <!-- Arrow from embedding to index -->
+      <line x1="322" y1="100" x2="383" y2="100" class="svg-stroke-amber" stroke-width="1" stroke-dasharray="4 3"/>
+      <polygon points="380,96 388,100 380,104" class="svg-amber" opacity="0.75"/>
+
+      <!-- Unified index box (right) -->
+      <rect x="390" y="18" width="215" height="164" rx="3" style="fill:var(--ink-1);stroke:var(--ink-3)" stroke-width="1"/>
+
+      <!-- Scattered vector dots -->
+      <circle cx="430" cy="60"  r="2.5" class="svg-dim" opacity="0.5"/>
+      <circle cx="455" cy="50"  r="2"   class="svg-dim" opacity="0.4"/>
+      <circle cx="415" cy="80"  r="2"   class="svg-dim" opacity="0.4"/>
+      <circle cx="440" cy="90"  r="2"   class="svg-dim" opacity="0.35"/>
+      <circle cx="510" cy="55"  r="2.5" class="svg-dim" opacity="0.5"/>
+      <circle cx="525" cy="80"  r="2"   class="svg-dim" opacity="0.4"/>
+      <circle cx="490" cy="70"  r="2"   class="svg-dim" opacity="0.45"/>
+      <circle cx="540" cy="65"  r="2.5" class="svg-dim" opacity="0.35"/>
+      <circle cx="565" cy="52"  r="2"   class="svg-dim" opacity="0.4"/>
+      <circle cx="555" cy="82"  r="2"   class="svg-dim" opacity="0.45"/>
+      <circle cx="415" cy="115" r="2"   class="svg-dim" opacity="0.35"/>
+      <circle cx="448" cy="125" r="2.5" class="svg-dim" opacity="0.4"/>
+      <circle cx="478" cy="108" r="2"   class="svg-dim" opacity="0.45"/>
+      <circle cx="505" cy="120" r="2"   class="svg-dim" opacity="0.35"/>
+      <circle cx="530" cy="110" r="2.5" class="svg-dim" opacity="0.4"/>
+      <circle cx="560" cy="125" r="2"   class="svg-dim" opacity="0.5"/>
+      <circle cx="540" cy="100" r="2"   class="svg-dim" opacity="0.35"/>
+      <circle cx="480" cy="138" r="2"   class="svg-dim" opacity="0.3"/>
+
+      <!-- Amber "matched" cluster -->
+      <circle cx="465" cy="80"  r="7"   class="svg-amber" opacity="0.12"/>
+      <circle cx="465" cy="80"  r="4"   class="svg-amber" opacity="0.85"/>
+      <line x1="465" y1="80"  x2="448" y2="125" class="svg-stroke-amber" stroke-width="0.5" opacity="0.25"/>
+      <line x1="465" y1="80"  x2="490" y2="70"  class="svg-stroke-amber" stroke-width="0.5" opacity="0.25"/>
+      <line x1="465" y1="80"  x2="440" y2="90"  class="svg-stroke-amber" stroke-width="0.5" opacity="0.2"/>
+      <text x="465" y="95" font-family="JetBrains Mono,monospace" font-size="6" class="svg-text-amber" text-anchor="middle" opacity="0.7">nearest</text>
+
+      <!-- "ask anything" label at bottom -->
+      <line x1="497" y1="158" x2="497" y2="148" class="svg-stroke-amber" stroke-width="0.75" stroke-dasharray="3 2"/>
+      <polygon points="493,148 497,141 501,148" class="svg-amber" opacity="0.6"/>
+      <text x="497" y="170" font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-amber-d" text-anchor="middle">ask anything →</text>
+    </svg>
+    <p class="vis-caption">Every content type on a page — text, images, audio, video, docs — unified into a single searchable index.</p>
+
+    <div class="chat-demo" style="margin-top:2.5rem">
+      <p class="chat-label">Example — finding a half-remembered article</p>
+      <div class="chat-exchange">
+        <div class="chat-line">
+          <span class="chat-glyph user">›</span>
+          <p class="chat-text user">What was that article about why we remember some dreams and not others?</p>
+        </div>
+        <div class="chat-divider"></div>
+        <div class="chat-line">
+          <span class="chat-glyph retrace">◆</span>
+          <p class="chat-text retrace">
+            You visited a piece from <em>The Atlantic</em> about 11 days ago —
+            "The Science of Dream Recall." It argued that REM sleep length and emotional salience
+            are the two strongest predictors of whether a dream gets consolidated into memory.
+            You also looked at a related Reddit thread the same evening.
+            <span class="chat-url">theatlantic.com/science/archive/2026/03/dream-recall-rem-sleep</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 03 Scenarios ── -->
+  <section class="section">
+    <p class="section-tag">Who It Helps</p>
+    <p class="section-number">03</p>
+
+    <h2 class="section-title">The needle in the haystack, found</h2>
+
+    <p class="prose">Everyone's haystack is different. Here are the people who reach for Retrace.</p>
+
+    <div class="scenarios">
+
+      <!-- Researcher -->
+      <div class="scenario">
+        <svg class="scenario-illustration" viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="120" class="svg-bg"/>
+          <g opacity="0.6">
+            <rect x="60" y="22" width="80"  height="8" rx="1" class="svg-border"/>
+            <rect x="60" y="34" width="120" height="8" rx="1" class="svg-border"/>
+            <rect x="60" y="46" width="100" height="8" rx="1" class="svg-border"/>
+            <rect x="60" y="58" width="110" height="8" rx="1" class="svg-border"/>
+            <rect x="60" y="70" width="90"  height="8" rx="1" class="svg-border"/>
+            <rect x="60" y="82" width="115" height="8" rx="1" class="svg-border"/>
+          </g>
+          <rect x="55" y="54" width="130" height="18" rx="2" fill="none" stroke="var(--amber)" stroke-width="0.75" opacity="0.5"/>
+          <rect x="60" y="58" width="110" height="8" rx="1" class="svg-amber" opacity="0.7"/>
+          <circle cx="220" cy="60" r="28" fill="none" class="svg-stroke-border" stroke-width="1.5"/>
+          <circle cx="218" cy="58" r="14" fill="none" class="svg-stroke-amber" stroke-width="1.2" opacity="0.5"/>
+          <line x1="231" y1="71" x2="242" y2="82" class="svg-stroke-amber" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+        <div class="scenario-body">
+          <p class="scenario-who">The Researcher</p>
+          <p class="scenario-situation">
+            You spent an afternoon reading about <strong>gut microbiome and mood</strong>.
+            Two weeks later you want to cite a study — but can't remember which journal.
+          </p>
+          <div class="scenario-query">
+            <span class="scenario-query-glyph">›</span>
+            <span class="scenario-query-text">"What did I read about the gut-brain connection?"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional -->
+      <div class="scenario">
+        <svg class="scenario-illustration" viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="120" class="svg-bg"/>
+          <rect x="60"  y="72" width="28" height="30" rx="1" class="svg-bg-2"/>
+          <rect x="98"  y="52" width="28" height="50" rx="1" class="svg-bg-2"/>
+          <rect x="136" y="38" width="28" height="64" rx="1" class="svg-amber" opacity="0.7"/>
+          <rect x="174" y="58" width="28" height="44" rx="1" class="svg-bg-2"/>
+          <circle cx="150" cy="32" r="6" fill="none" class="svg-stroke-amber" stroke-width="1.2"/>
+          <line x1="150" y1="22" x2="150" y2="18" class="svg-stroke-amber" stroke-width="1" opacity="0.7"/>
+          <line x1="160" y1="27" x2="163" y2="24" class="svg-stroke-amber" stroke-width="1" opacity="0.7"/>
+          <line x1="140" y1="27" x2="137" y2="24" class="svg-stroke-amber" stroke-width="1" opacity="0.7"/>
+          <rect x="220" y="44" width="60" height="8" rx="1" class="svg-bg-2"/>
+          <rect x="220" y="57" width="45" height="8" rx="1" class="svg-border"/>
+          <rect x="220" y="70" width="52" height="8" rx="1" class="svg-border"/>
+          <line x1="215" y1="40" x2="215" y2="84" class="svg-stroke-border" stroke-width="0.75"/>
+        </svg>
+        <div class="scenario-body">
+          <p class="scenario-who">The Professional</p>
+          <p class="scenario-situation">
+            You saw a competitor's pricing page weeks ago and remember thinking the structure was clever.
+            Now you're in a strategy meeting.
+          </p>
+          <div class="scenario-query">
+            <span class="scenario-query-glyph">›</span>
+            <span class="scenario-query-text">"Find that SaaS pricing page with the per-seat model"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Curious One -->
+      <div class="scenario">
+        <svg class="scenario-illustration" viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="120" class="svg-bg"/>
+          <circle cx="160" cy="62" r="42" fill="none" class="svg-stroke-2"  stroke-width="1.2"/>
+          <circle cx="160" cy="62" r="30" fill="none" class="svg-stroke-2"  stroke-width="1"/>
+          <circle cx="160" cy="62" r="18" fill="none" class="svg-stroke-border" stroke-width="1"/>
+          <circle cx="160" cy="62" r="7"  class="svg-amber" opacity="0.2"/>
+          <circle cx="160" cy="62" r="3"  class="svg-amber" opacity="0.8"/>
+          <circle cx="202" cy="62" r="3"  class="svg-border"/>
+          <circle cx="174" cy="28" r="2.5" class="svg-border"/>
+          <circle cx="118" cy="48" r="2"   class="svg-border"/>
+          <circle cx="127" cy="90" r="2.5" class="svg-border"/>
+          <circle cx="185" cy="95" r="2"   class="svg-border"/>
+        </svg>
+        <div class="scenario-body">
+          <p class="scenario-who">The Curious One</p>
+          <p class="scenario-situation">
+            You fell down a rabbit hole about the <strong>Panama Canal</strong> at 11pm.
+            A month later someone brings it up at dinner.
+          </p>
+          <div class="scenario-query">
+            <span class="scenario-query-glyph">›</span>
+            <span class="scenario-query-text">"What did I read about the Panama Canal?"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overwhelmed -->
+      <div class="scenario">
+        <svg class="scenario-illustration" viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="120" class="svg-bg"/>
+          <rect x="90" y="50" width="120" height="55" rx="2" class="svg-ink svg-stroke-2" stroke-width="1.2" style="fill:var(--ink);stroke:var(--ink-2)"/>
+          <line x1="90"  y1="60" x2="210" y2="60" class="svg-stroke-2" stroke-width="1"/>
+          <circle cx="97"  cy="55" r="2" class="svg-bg-2"/>
+          <circle cx="104" cy="55" r="2" class="svg-bg-2"/>
+          <rect x="75" y="38" width="120" height="55" rx="2" style="fill:var(--ink);stroke:var(--ink-2)" stroke-width="1"/>
+          <line x1="75"  y1="48" x2="195" y2="48" class="svg-stroke-2" stroke-width="1"/>
+          <circle cx="82" cy="43" r="2" class="svg-bg-2"/>
+          <circle cx="89" cy="43" r="2" class="svg-bg-2"/>
+          <rect x="60" y="26" width="120" height="55" rx="2" style="fill:var(--ink);stroke:var(--ink-3)" stroke-width="1"/>
+          <line x1="60"  y1="36" x2="180" y2="36" class="svg-stroke-border" stroke-width="1"/>
+          <circle cx="67" cy="31" r="2" class="svg-border"/>
+          <circle cx="74" cy="31" r="2" class="svg-border"/>
+          <line x1="218" y1="26" x2="228" y2="36" class="svg-stroke-amber" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="228" y1="26" x2="218" y2="36" class="svg-stroke-amber" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <text x="233" y="78" font-family="JetBrains Mono" font-size="9" class="svg-text-amber" opacity="0.5">gone</text>
+        </svg>
+        <div class="scenario-body">
+          <p class="scenario-who">The Overwhelmed</p>
+          <p class="scenario-situation">
+            You had forty tabs open and closed them all in a moment of browser guilt.
+            Now you're trying to reconstruct your session.
+          </p>
+          <div class="scenario-query">
+            <span class="scenario-query-glyph">›</span>
+            <span class="scenario-query-text">"What was I researching last Thursday afternoon?"</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── 04 Privacy ── -->
+  <section class="section">
+    <p class="section-tag">Privacy</p>
+    <p class="section-number">04</p>
+
+    <h2 class="section-title">Your history stays yours</h2>
+
+    <p class="prose">
+      Retrace knows a lot about you — by design. That's the whole point. But that information
+      never goes anywhere. There is no Retrace server. No account. Your browsing
+      history never leaves your machine.
+    </p>
+
+    <svg viewBox="0 0 620 130" xmlns="http://www.w3.org/2000/svg" style="max-width:580px;margin:2rem auto 0;display:block;width:100%">
+      <rect x="10"  y="25" width="200" height="80" rx="3" class="svg-bg svg-stroke-border" stroke-width="1" style="fill:var(--ink-1);stroke:var(--ink-3)"/>
+      <text x="110" y="47" font-family="JetBrains Mono,monospace" font-size="8.5" class="svg-text-muted" text-anchor="middle" letter-spacing="2">YOUR MACHINE</text>
+      <rect x="24"  y="56" width="72"  height="34" rx="2" style="fill:var(--ink-2);stroke:var(--ink-3)" stroke-width="0.75"/>
+      <text x="60"  y="70" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-cream-2" text-anchor="middle">History</text>
+      <text x="60"  y="81" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-cream-2" text-anchor="middle">Index</text>
+      <rect x="106" y="56" width="88"  height="34" rx="2" style="fill:var(--ink-2);stroke:var(--amber)" stroke-width="0.75"/>
+      <text x="150" y="70" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-amber" text-anchor="middle">Retrace</text>
+      <text x="150" y="81" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-amber" text-anchor="middle">Engine</text>
+
+      <line x1="210" y1="65" x2="308" y2="65" class="svg-stroke-amber" stroke-width="1" stroke-dasharray="4 3"/>
+      <polygon points="305,61 313,65 305,69" class="svg-amber" opacity="0.7"/>
+      <text x="258" y="58" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-amber-d" text-anchor="middle">query only</text>
+      <line x1="210" y1="85" x2="280" y2="85" class="svg-stroke-dim" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="243" y="97" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-dim" text-anchor="middle">history: never</text>
+
+      <rect x="315" y="25" width="150" height="80" rx="3" style="fill:var(--ink-1);stroke:var(--ink-3)" stroke-width="1"/>
+      <text x="390" y="47" font-family="JetBrains Mono,monospace" font-size="8.5" class="svg-text-muted" text-anchor="middle" letter-spacing="2">GOOGLE AI</text>
+      <rect x="330" y="56" width="120" height="34" rx="2" style="fill:var(--ink-2);stroke:var(--ink-3)" stroke-width="0.75"/>
+      <text x="390" y="70" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-cream-2" text-anchor="middle">Gemini Embedding</text>
+      <text x="390" y="81" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-cream-2" text-anchor="middle">+ Flash Chat</text>
+
+      <line x1="465" y1="65" x2="563" y2="65" class="svg-stroke-dim" stroke-width="1" stroke-dasharray="4 3"/>
+      <polygon points="560,61 568,65 560,69" class="svg-dim" opacity="0.7"/>
+      <text x="514" y="58" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-dim" text-anchor="middle">answer</text>
+
+      <rect x="570" y="25" width="44" height="80" rx="3" style="fill:var(--ink-1);stroke:var(--ink-3)" stroke-width="1"/>
+      <text x="592" y="70" font-family="JetBrains Mono,monospace" font-size="8" class="svg-text-cream-2" text-anchor="middle">You</text>
+
+      <rect x="265" y="14" width="26" height="10" rx="2" style="fill:var(--ink-2);stroke:var(--amber-dim)" stroke-width="0.75"/>
+      <text x="278" y="22" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-amber-d" text-anchor="middle">🔒</text>
+    </svg>
+
+    <div class="privacy-panel">
+      <p class="privacy-title">What "local-first" actually means</p>
+      <ul class="privacy-items">
+        <li>
+          <span class="privacy-check">◆</span>
+          <span class="privacy-text"><strong>Your index.</strong> Stored in your browser's local database — never on a server.</span>
+        </li>
+        <li>
+          <span class="privacy-check">◆</span>
+          <span class="privacy-text"><strong>Your API key.</strong> Encrypted local storage only. The developer never sees it.</span>
+        </li>
+        <li>
+          <span class="privacy-check">◆</span>
+          <span class="privacy-text"><strong>Your queries.</strong> Search happens locally first. Only the question text reaches the AI — not your history.</span>
+        </li>
+        <li>
+          <span class="privacy-check">◆</span>
+          <span class="privacy-text"><strong>Your control.</strong> Clear everything from Settings, any time. No remote copy exists.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── 05 What It Finds ── -->
+  <section class="section">
+    <p class="section-tag">What Retrace Is Good At</p>
+    <p class="section-number">05</p>
+
+    <h2 class="section-title">Finding things you can only half-describe</h2>
+
+    <p class="prose">
+      Search engines find things you don't know yet. Retrace finds things you've already seen —
+      when all you have is a feeling, a fragment, a half-formed memory of something you read.
+      It understands what you <strong>mean</strong>, not just what you type.
+    </p>
+
+    <svg viewBox="0 0 580 180" xmlns="http://www.w3.org/2000/svg" style="max-width:580px;margin:2rem auto 0;display:block;width:100%">
+      <defs>
+        <radialGradient id="amberGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="var(--amber)" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="var(--amber)" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <rect x="10" y="10" width="255" height="160" rx="3" style="fill:var(--ink-1);stroke:var(--ink-2)" stroke-width="1"/>
+      <text x="137" y="34" font-family="JetBrains Mono,monospace" font-size="8" class="svg-text-dim" text-anchor="middle" letter-spacing="2">KEYWORD SEARCH</text>
+      <text x="137" y="60" font-family="JetBrains Mono,monospace" font-size="9" class="svg-text-muted" text-anchor="middle">"sleep memory creativity"</text>
+      <rect x="30" y="72"  width="215" height="11" rx="1" style="fill:var(--ink-2);stroke:var(--ink-2)" stroke-width="0.5"/>
+      <text x="137" y="81" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-border" text-anchor="middle">0 results matching all terms</text>
+      <rect x="30" y="90"  width="215" height="11" rx="1" style="fill:var(--ink-2);stroke:var(--ink-2)" stroke-width="0.5"/>
+      <text x="137" y="99" font-family="JetBrains Mono,monospace" font-size="7" class="svg-text-border" text-anchor="middle">Try different keywords</text>
+      <text x="137" y="145" font-family="JetBrains Mono,monospace" font-size="22" class="svg-text-border" text-anchor="middle">∅</text>
+
+      <rect x="315" y="10" width="255" height="160" rx="3" style="fill:var(--ink-1);stroke:var(--amber)" stroke-width="0.75" stroke-opacity="0.4"/>
+      <circle cx="442" cy="90" r="55" fill="url(#amberGlow)"/>
+      <text x="442" y="34" font-family="JetBrains Mono,monospace" font-size="8" class="svg-text-amber" text-anchor="middle" letter-spacing="2">RETRACE — MEANING</text>
+      <text x="442" y="60" font-family="JetBrains Mono,monospace" font-size="9" class="svg-text-cream-2" text-anchor="middle">"that sleep + creativity article"</text>
+
+      <circle cx="407" cy="90" r="4"   class="svg-amber" opacity="0.9"/>
+      <text x="407" y="108" font-family="JetBrains Mono,monospace" font-size="6.5" class="svg-text-amber" text-anchor="middle">matched</text>
+      <circle cx="432" cy="75"  r="3"   class="svg-amber" opacity="0.45"/>
+      <circle cx="460" cy="82"  r="3"   class="svg-amber" opacity="0.35"/>
+      <circle cx="445" cy="105" r="2.5" class="svg-amber" opacity="0.3"/>
+      <circle cx="422" cy="98"  r="2"   class="svg-amber" opacity="0.25"/>
+      <circle cx="378" cy="70"  r="2.5" class="svg-dim"/>
+      <circle cx="478" cy="68"  r="2"   class="svg-dim"/>
+      <circle cx="468" cy="110" r="2"   class="svg-dim"/>
+      <circle cx="392" cy="115" r="2"   class="svg-dim"/>
+      <line x1="407" y1="90" x2="432" y2="75"  class="svg-stroke-amber" stroke-width="0.5" opacity="0.3"/>
+      <line x1="407" y1="90" x2="460" y2="82"  class="svg-stroke-amber" stroke-width="0.5" opacity="0.25"/>
+      <line x1="407" y1="90" x2="445" y2="105" class="svg-stroke-amber" stroke-width="0.5" opacity="0.2"/>
+
+      <text x="290" y="98" font-family="JetBrains Mono,monospace" font-size="10" class="svg-text-border" text-anchor="middle">vs</text>
+    </svg>
+
+    <div class="simple-stats">
+      <div class="simple-stat">
+        <p class="simple-stat-n">100k</p>
+        <p class="simple-stat-l">pages indexed<br>from your history</p>
+      </div>
+      <div class="simple-stat">
+        <p class="simple-stat-n">&lt;1s</p>
+        <p class="simple-stat-l">to search your<br>entire archive</p>
+      </div>
+      <div class="simple-stat">
+        <p class="simple-stat-n">0</p>
+        <p class="simple-stat-l">bytes of history<br>sent to any server</p>
+      </div>
+    </div>
+
+    <div class="chat-demo" style="margin-top:2.5rem">
+      <p class="chat-label">More things you can ask</p>
+      <div class="chat-exchange">
+
+        <div class="chat-line">
+          <span class="chat-glyph user">›</span>
+          <p class="chat-text user">What have I been reading about lately?</p>
+        </div>
+        <div class="chat-divider"></div>
+        <div class="chat-line">
+          <span class="chat-glyph retrace">◆</span>
+          <p class="chat-text retrace">This past week you've been heavy on <em>machine learning</em>, a bit of <em>personal finance</em>, and a surprising amount of <em>bread recipes</em>. Want me to pull the specific pages from any of those?</p>
+        </div>
+
+        <div class="chat-divider"></div>
+
+        <div class="chat-line">
+          <span class="chat-glyph user">›</span>
+          <p class="chat-text user">Find that YouTube video about the guy who built a cabin alone in the woods</p>
+        </div>
+        <div class="chat-divider"></div>
+        <div class="chat-line">
+          <span class="chat-glyph retrace">◆</span>
+          <p class="chat-text retrace">
+            You watched it 19 days ago — a 47-minute video, no narration, just building.
+            <span class="chat-url">youtube.com/watch?v=P73REgj-3UE</span>
+          </p>
+        </div>
+
+        <div class="chat-divider"></div>
+
+        <div class="chat-line">
+          <span class="chat-glyph user">›</span>
+          <p class="chat-text user">Did I ever read anything about stoicism?</p>
+        </div>
+        <div class="chat-divider"></div>
+        <div class="chat-line">
+          <span class="chat-glyph retrace">◆</span>
+          <p class="chat-text retrace">
+            Quite a bit — mostly in a cluster about eight months ago. <em>Meditations</em> summaries, a few Daily Stoic posts, and a longer essay on Marcus Aurelius from <em>The New Yorker</em>. Want me to surface those?
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 06 Closing ── -->
+  <section class="section" style="border-bottom:none">
+    <p class="section-tag">The Idea</p>
+    <p class="section-number">06</p>
+
+    <p class="big-statement">
+      Your browsing history is a record<br>of everything you were <em>curious about</em>.
+    </p>
+
+    <p class="prose">
+      Most of that curiosity disappears into the void — a closed tab, a forgotten bookmark,
+      a URL you'll never think to search for. Retrace gives that record back to you.
+      Your past self's research, available to your present self.
+    </p>
+
+    <p class="prose">
+      You've already done the reading.<br>Retrace helps you find it.
+    </p>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <p class="footer-wordmark">re<em>trace</em></p>
+    <p class="footer-text">
+      A Chrome extension for searching your browsing history with AI.<br>
+      Local-first · No account · No backend<br>
+      <a href="mailto:amer@mriziq.com">amer@mriziq.com</a>
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  const html = document.documentElement;
+  const btn  = document.getElementById('themeToggle');
+  const icon = document.getElementById('themeIcon');
+  const lbl  = document.getElementById('themeLabel');
+
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      icon.textContent = '☀';
+      lbl.textContent  = 'Light';
+    } else {
+      icon.textContent = '☾';
+      lbl.textContent  = 'Dark';
+    }
+    localStorage.setItem('retrace-theme', theme);
+  }
+
+  // On load: prefer saved, then system
+  const saved  = localStorage.getItem('retrace-theme');
+  const system = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  applyTheme(saved || system);
+
+  btn.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+
+  // Follow system changes if no manual override
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+    if (!localStorage.getItem('retrace-theme')) applyTheme(e.matches ? 'light' : 'dark');
+  });
+</script>
+</body>
+</html>

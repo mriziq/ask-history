@@ -26,8 +26,8 @@ export function Settings({ onSave, indexedCount }: SettingsProps) {
       <div
         className="absolute pointer-events-none"
         style={{
-          width: 600,
-          height: 600,
+          width: 320,
+          height: 320,
           borderRadius: "50%",
           background: "radial-gradient(circle, rgba(200,146,74,0.06) 0%, transparent 70%)",
           top: "50%",
@@ -55,8 +55,7 @@ export function Settings({ onSave, indexedCount }: SettingsProps) {
               letterSpacing: "-0.02em",
             }}
           >
-            ask your<br />
-            <span style={{ color: "var(--amber)" }}>past.</span>
+            re<span style={{ color: "var(--amber)" }}>trace.</span>
           </h1>
           <p
             className="font-mono mt-5 leading-relaxed"
