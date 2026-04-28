@@ -9,7 +9,7 @@ export default defineConfig({
     outDir: "dist",
     rollupOptions: {
       input: {
-        newtab: "src/newtab/index.html",
+        sidebar: "src/sidebar/index.html",
       },
     },
   },

@@ -1,9 +1,15 @@
-import type { Message } from "ai";
 import ReactMarkdown from "react-markdown";
 
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+}
+
 interface MessageListProps {
-  messages: Message[];
+  messages: ChatMessage[];
   onSuggestion: (text: string) => void;
+  agentStatus?: string | null;
 }
 
 const SUGGESTIONS = [
@@ -83,7 +89,7 @@ const mdComponents = {
   ),
 };
 
-export function MessageList({ messages, onSuggestion }: MessageListProps) {
+export function MessageList({ messages, onSuggestion, agentStatus }: MessageListProps) {
   if (messages.length === 0) {
     return (
       <div className="flex flex-col justify-end flex-1 pb-6">
@@ -156,10 +162,8 @@ export function MessageList({ messages, onSuggestion }: MessageListProps) {
           );
         }
 
-        const text = msg.parts
-          ?.filter((p) => p.type === "text")
-          .map((p) => p.text)
-          .join("") ?? msg.content;
+        const isLast = i === messages.length - 1;
+        const showStatus = isLast && !msg.content && agentStatus;
 
         return (
           <div
@@ -168,16 +172,34 @@ export function MessageList({ messages, onSuggestion }: MessageListProps) {
               opacity: 0,
               animation: "fadeUp 0.45s ease forwards",
               animationDelay: `${i * 0.04 + 0.08}s`,
-              borderLeft: "1px solid var(--ink-3)",
+              borderLeft: `1px solid ${showStatus ? "var(--amber-dim)" : "var(--ink-3)"}`,
               paddingLeft: "1rem",
               marginLeft: "0.85rem",
               fontFamily: "Lora, Georgia, serif",
               fontSize: "1rem",
               color: "var(--cream)",
               letterSpacing: "0.01em",
+              transition: "border-color 0.3s",
             }}
           >
-            <ReactMarkdown components={mdComponents}>{text}</ReactMarkdown>
+            {showStatus ? (
+              <span
+                className="font-mono"
+                style={{
+                  fontSize: "0.72rem",
+                  color: "var(--amber)",
+                  letterSpacing: "0.08em",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <span style={{ animation: "pulse 1.2s ease-in-out infinite" }}>◆</span>
+                {agentStatus}
+              </span>
+            ) : (
+              <ReactMarkdown components={mdComponents}>{msg.content}</ReactMarkdown>
+            )}
           </div>
         );
       })}

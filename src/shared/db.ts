@@ -1,23 +1,52 @@
 import { openDB, type IDBPDatabase } from "idb";
 import type { HistoryItem } from "./types";
 
-const DB_NAME = "ask-your-past";
-const DB_VERSION = 1;
+const DB_NAME = "retrace";
+const DB_VERSION = 3;
 const STORE = "history_items";
+const BINARY_STORE = "binary_index";
+
+export interface BinaryIndexEntry {
+  id: "main";
+  urls: string[];
+  visitedAts: number[];
+  data: Uint8Array;
+}
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
 function getDb() {
   if (!dbPromise) {
     dbPromise = openDB(DB_NAME, DB_VERSION, {
-      upgrade(db) {
+      async upgrade(db, oldVersion, _newVersion, tx) {
         if (!db.objectStoreNames.contains(STORE)) {
           db.createObjectStore(STORE, { keyPath: "url" });
+        }
+        if (!db.objectStoreNames.contains(BINARY_STORE)) {
+          db.createObjectStore(BINARY_STORE, { keyPath: "id" });
+        }
+        if (oldVersion < 2) {
+          let cursor = await tx.objectStore(STORE).openCursor();
+          while (cursor) {
+            await cursor.update({
+              ...cursor.value,
+              embedding: null,
+              chunkEmbeddings: [],
+              embedContent: cursor.value.embedContent ?? null,
+              mediaUrls: cursor.value.mediaUrls ?? { images: [], audio: [] },
+              enriched: cursor.value.enriched ?? false,
+            });
+            cursor = await cursor.continue();
+          }
         }
       },
     });
   }
   return dbPromise;
+}
+
+function isIndexableUrl(url: string | undefined): url is string {
+  return !!url && !url.startsWith("chrome://") && !url.startsWith("chrome-extension://");
 }
 
 export async function saveHistoryItem(item: HistoryItem): Promise<void> {
@@ -40,10 +69,6 @@ export async function getHistoryCount(): Promise<number> {
   return db.count(STORE);
 }
 
-/**
- * Imports all existing browser history into IndexedDB (skips already-saved URLs).
- * Returns the number of newly added items.
- */
 export async function importBrowserHistory(): Promise<number> {
   const items = await chrome.history.search({
     text: "",
@@ -58,19 +83,22 @@ export async function importBrowserHistory(): Promise<number> {
   await Promise.all(
     items.map(async (item) => {
       const url = item.url;
-      if (!url || url.startsWith("chrome://") || url.startsWith("chrome-extension://")) return;
+      if (!isIndexableUrl(url)) return;
       const existing = await tx.store.get(url);
-      if (!existing) {
-        await tx.store.put({
-          url,
-          title: item.title || url,
-          visitedAt: item.lastVisitTime ?? Date.now(),
-          embedding: null,
-          excerpt: null,
-          enriched: false,
-        });
-        added++;
-      }
+      if (existing) return;
+
+      await tx.store.put({
+        url,
+        title: item.title || url,
+        visitedAt: item.lastVisitTime ?? Date.now(),
+        embedding: null,
+        chunkEmbeddings: [],
+        excerpt: null,
+        embedContent: null,
+        mediaUrls: { images: [], audio: [] },
+        enriched: false,
+      });
+      added++;
     })
   );
 
@@ -112,9 +140,9 @@ export async function clearAllHistory(): Promise<void> {
 export async function estimateStorageMB(): Promise<number> {
   const db = await getDb();
   const all = await db.getAll(STORE);
-  // Rough estimate: JSON-serialize a sample and extrapolate
-  const sample = JSON.stringify(all);
-  return parseFloat((new Blob([sample]).size / 1024 / 1024).toFixed(2));
+  const serialized = JSON.stringify(all);
+  const megabytes = new Blob([serialized]).size / 1024 / 1024;
+  return parseFloat(megabytes.toFixed(2));
 }
 
 export async function getUnenrichedItems(): Promise<HistoryItem[]> {
@@ -123,15 +151,43 @@ export async function getUnenrichedItems(): Promise<HistoryItem[]> {
   return all.filter((item) => !item.enriched);
 }
 
-/**
- * Returns the most recently visited pages, optionally filtered by domain substring.
- */
-export async function getRecentItems(limit = 20, domain?: string): Promise<HistoryItem[]> {
+export async function getHistoryItems(urls: string[]): Promise<HistoryItem[]> {
+  const db = await getDb();
+  const results = await Promise.all(urls.map((url) => db.get(STORE, url) as Promise<HistoryItem | undefined>));
+  return results.filter((item): item is HistoryItem => item !== undefined);
+}
+
+export async function saveBinaryIndex(entry: BinaryIndexEntry): Promise<void> {
+  const db = await getDb();
+  await db.put(BINARY_STORE, entry);
+}
+
+export async function getBinaryIndex(): Promise<BinaryIndexEntry | undefined> {
+  const db = await getDb();
+  return db.get(BINARY_STORE, "main");
+}
+
+export async function clearBinaryIndex(): Promise<void> {
+  const db = await getDb();
+  await db.clear(BINARY_STORE);
+}
+
+export async function getRecentItems(
+  limit = 20,
+  domain?: string,
+  startTime?: number,
+  endTime?: number
+): Promise<HistoryItem[]> {
   const db = await getDb();
   const all = await db.getAll(STORE);
-  const filtered = domain
-    ? all.filter((item) => item.url.includes(domain))
-    : all;
+
+  const filtered = all.filter((item) => {
+    if (domain && !item.url.includes(domain)) return false;
+    if (startTime !== undefined && item.visitedAt < startTime) return false;
+    if (endTime !== undefined && item.visitedAt > endTime) return false;
+    return true;
+  });
+
   filtered.sort((a, b) => b.visitedAt - a.visitedAt);
   return filtered.slice(0, limit);
 }

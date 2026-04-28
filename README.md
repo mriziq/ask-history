@@ -1,6 +1,6 @@
-# Ask Your Past
+# Retrace
 
-Ask questions about your browsing history in plain English. Ask Your Past indexes the pages you visit and lets you search them semantically — so you can find that article you half-remember, or rediscover a resource you bookmarked months ago, without needing the exact URL or title.
+Search your browsing history in plain English. Retrace indexes the pages you visit and lets you search them semantically — so you can find that article you half-remember, or rediscover a resource you bookmarked months ago, without needing the exact URL or title.
 
 ---
 
@@ -10,7 +10,7 @@ Ask questions about your browsing history in plain English. Ask Your Past indexe
 2. When you want to find something, open the extension and ask in natural language.
 3. It searches your local index using embeddings and returns the most relevant pages you've visited.
 
-Everything runs locally in your browser. There is no server, no account, and no data ever leaves your device — except for the OpenAI API calls you make directly with your own key.
+Everything runs locally in your browser. There is no server, no account, and no data ever leaves your device — except for the Gemini API calls you make directly with your own key.
 
 ---
 
@@ -32,15 +32,15 @@ Everything runs locally in your browser. There is no server, no account, and no 
 
 ## Setup
 
-Ask Your Past requires an OpenAI API key to generate embeddings and answer questions.
+Retrace requires a Gemini API key for embeddings and chat.
 
 **Getting an API key:**
 
-1. Go to [platform.openai.com](https://platform.openai.com) and sign in or create an account.
-2. Navigate to **API keys** and create a new secret key.
-3. Copy the key and paste it into the extension's settings panel.
+1. Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and sign in with your Google account.
+2. Click **Create API key** and copy it.
+3. Paste the key into the extension's settings panel on first launch.
 
-Your key is stored locally in Chrome's encrypted storage and is never transmitted anywhere except directly to OpenAI.
+Your key is stored locally in Chrome's encrypted storage and is never transmitted anywhere except directly to Google's Gemini API.
 
 ---
 
@@ -49,7 +49,7 @@ Your key is stored locally in Chrome's encrypted storage and is never transmitte
 - **No backend.** There is no server associated with this extension. All data is stored in IndexedDB on your device.
 - **No tracking.** The extension does not collect analytics, usage data, or any personally identifiable information.
 - **You control your data.** You can clear your index at any time from the extension's settings.
-- **Direct API calls only.** The only outbound network requests are the OpenAI API calls you initiate yourself.
+- **Direct API calls only.** The only outbound network requests are the Gemini API calls you initiate yourself.
 
 See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
 
@@ -63,7 +63,7 @@ Reading page content as you browse is how the extension builds its local index. 
 
 **Why do I need to provide my own API key?**
 
-There is no backend to proxy requests through, so API calls go directly from your browser to OpenAI using your key. This keeps your data private and means you only pay for what you use.
+There is no backend to proxy requests through, so API calls go directly from your browser to Google's Gemini API using your key. This keeps your data private and means you only pay for what you use.
 
 **How do I delete my data?**
 

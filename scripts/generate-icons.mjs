@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Generates Ask Your Past icon PNGs from pixel-art spec
+// Generates Retrace icon PNGs from pixel-art spec
 // Usage: node scripts/generate-icons.mjs
 
 import { execSync } from 'child_process';

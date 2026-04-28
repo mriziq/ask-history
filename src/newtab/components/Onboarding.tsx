@@ -28,7 +28,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     e.preventDefault();
     const trimmed = key.trim();
     if (!trimmed) return;
-    chrome.storage.local.set({ openaiApiKey: trimmed, onboardingDone: true });
+    chrome.storage.local.set({ geminiApiKey: trimmed, onboardingDone: true });
     onComplete(trimmed);
   }
 
@@ -41,8 +41,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <div
         className="absolute pointer-events-none"
         style={{
-          width: 700,
-          height: 700,
+          width: 350,
+          height: 350,
           borderRadius: "50%",
           background: "radial-gradient(circle, rgba(200,146,74,0.07) 0%, transparent 65%)",
           top: "50%",
@@ -99,8 +99,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   letterSpacing: "-0.02em",
                 }}
               >
-                ask your<br />
-                <span style={{ color: "var(--amber)" }}>past.</span>
+                re<span style={{ color: "var(--amber)" }}>trace.</span>
               </h1>
             </div>
 
@@ -171,7 +170,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {
                   n: "2",
                   title: "Embeds locally",
-                  body: "Pages are converted to semantic vectors using OpenAI embeddings and stored in your browser — never on any server.",
+                  body: "Pages are converted to semantic vectors using Gemini embeddings and stored in your browser — never on any server.",
                 },
                 {
                   n: "3",
@@ -220,7 +219,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               }}
             >
               Your data never leaves your machine.<br />
-              Your API key goes straight to OpenAI — not through us.
+              Your API key goes straight to Google — not through us.
             </div>
 
             <div className="flex gap-3">
@@ -272,12 +271,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 className="font-mono leading-relaxed"
                 style={{ fontSize: "0.68rem", color: "var(--dim)", letterSpacing: "0.02em" }}
               >
-                You need an OpenAI API key for embeddings and chat.<br />
+                You need a Gemini API key for embeddings and chat.<br />
                 It's used only in your browser.
               </p>
 
               <a
-                href="https://platform.openai.com/api-keys"
+                href="https://aistudio.google.com/apikey"
                 target="_blank"
                 rel="noreferrer"
                 className="font-mono"
@@ -293,7 +292,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
                 onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
               >
-                Get your key at platform.openai.com/api-keys ↗
+                Get your key at aistudio.google.com/apikey ↗
               </a>
             </div>
 
@@ -303,7 +302,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   className="font-mono text-xs tracking-widest uppercase mb-3"
                   style={{ color: "var(--muted)" }}
                 >
-                  OpenAI API Key
+                  Gemini API Key
                 </p>
                 <div
                   style={{
@@ -318,7 +317,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     onChange={(e) => setKey(e.target.value)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    placeholder="sk-···"
+                    placeholder="AIza···"
                     autoFocus
                     style={{
                       background: "transparent",

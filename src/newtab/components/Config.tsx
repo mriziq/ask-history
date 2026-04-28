@@ -54,7 +54,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
   function handleSaveKey(e: React.FormEvent) {
     e.preventDefault();
     if (newKey.trim()) {
-      chrome.storage.local.set({ openaiApiKey: newKey.trim() });
+      chrome.storage.local.set({ geminiApiKey: newKey.trim() });
       onChangeKey(newKey.trim());
       setNewKey("");
       setShowKeyInput(false);
@@ -70,7 +70,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between px-6 shrink-0"
+        className="flex items-center justify-between px-4 shrink-0"
         style={{ borderBottom: "1px solid var(--ink-2)", background: "var(--ink-1)", height: 56 }}
       >
         <span
@@ -96,7 +96,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
         </button>
       </div>
 
-      <div className="flex flex-col gap-8 px-6 py-8">
+      <div className="flex flex-col gap-8 px-4 py-8">
 
         {/* Archive Stats */}
         <section>
@@ -310,7 +310,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
             className="font-mono mb-4"
             style={{ fontSize: "0.65rem", letterSpacing: "0.22em", color: "var(--dim)", textTransform: "uppercase" }}
           >
-            OpenAI API Key
+            Gemini API Key
           </p>
           <div className="flex items-center justify-between">
             <span className="font-mono" style={{ fontSize: "0.82rem", color: "var(--cream-2)", letterSpacing: "0.06em" }}>
@@ -348,7 +348,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
                   onChange={(e) => setNewKey(e.target.value)}
                   onFocus={() => setKeyFocused(true)}
                   onBlur={() => setKeyFocused(false)}
-                  placeholder="sk-···"
+                  placeholder="AIza···"
                   autoFocus
                   style={{
                     background: "transparent",
@@ -385,7 +385,7 @@ export function Config({ stats, activePhase, apiKey, onRun, onCancel, onRefresh,
             className="font-mono mt-3"
             style={{ fontSize: "0.65rem", color: "var(--dim)", letterSpacing: "0.04em" }}
           >
-            Stored locally · only sent to OpenAI
+            Stored locally · only sent to Google
           </p>
           <button
             onClick={onSignOut}

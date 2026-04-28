@@ -39,6 +39,7 @@
 html, body, #root {
   height: 100%;
   margin: 0;
+  overflow: hidden;
   background: var(--ink);
   color: var(--cream);
   font-family: 'JetBrains Mono', 'Menlo', monospace;
@@ -53,4 +54,9 @@ html, body, #root {
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }

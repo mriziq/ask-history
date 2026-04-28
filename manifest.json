@@ -1,11 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Ask Your Past",
+  "name": "Retrace",
   "version": "1.0.0",
-  "short_name": "Ask Your Past",
-  "description": "Semantic search over your browsing history using AI",
-  "homepage_url": "https://github.com/mriziq/ask-your-past",
-  "permissions": ["history", "storage", "tabs"],
+  "short_name": "Retrace",
+  "description": "Retrace your browsing history with AI — search what you've read in plain English.",
+  "homepage_url": "https://github.com/mriziq/retrace",
+  "permissions": ["history", "storage", "tabs", "sidePanel"],
+  "side_panel": {
+    "default_path": "src/sidebar/index.html"
+  },
   "background": {
     "service_worker": "src/background/index.ts",
     "type": "module"
@@ -17,7 +20,7 @@
     "128": "public/icons/icon128.png"
   },
   "action": {
-    "default_title": "Ask Your Past",
+    "default_title": "Retrace",
     "default_icon": {
       "16":  "public/icons/icon16.png",
       "32":  "public/icons/icon32.png",

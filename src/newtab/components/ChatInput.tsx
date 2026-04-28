@@ -32,8 +32,8 @@ export function ChatInput({ input, isLoading, onChange, onSubmit }: ChatInputPro
     <div
       style={{
         borderTop: `1px solid ${focused ? "var(--ink-3)" : "var(--ink-2)"}`,
-        background: "var(--ink-1)",
-        padding: "16px 24px 20px",
+        background: "var(--ink)",
+        padding: "16px 16px 20px",
         transition: "border-color 0.2s",
       }}
     >
@@ -106,7 +106,7 @@ export function ChatInput({ input, isLoading, onChange, onSubmit }: ChatInputPro
             color: "var(--muted)",
             letterSpacing: "0.08em",
             marginTop: 6,
-            marginLeft: 24,
+            marginLeft: 16,
           }}
         >
           RETURN to send · SHIFT+RETURN for newline

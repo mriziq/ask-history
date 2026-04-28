@@ -1,5 +1,5 @@
 {
-  "name": "ask-your-past",
+  "name": "retrace",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^1.3.0",
-    "ai": "^4.3.0",
+    "@ai-sdk/google": "^1.2.22",
+    "ai": "^4.3.19",
     "idb": "^8.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
